@@ -1,0 +1,1293 @@
+<!doctype html>
+<html lang="zh-CN" data-layer="main" data-active-copy="0">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070b22">
+  <title>Portfolio — Scroll to reveal</title>
+  <!--
+    VIDEO NARRATIVE / 4.04s
+    00.00–01.35  惊喜正视：灵感先于答案，惊喜总从一次凝视开始。
+    01.35–02.75  侧望思考：把每次犹疑拆成系统，让直觉拥有清晰秩序。
+    02.75–04.04  俏皮回望：最后留下辨识度，让作品替你继续说话。
+
+    TYPE LANGUAGE
+    Condensed uppercase display + compact neutral sans + italic Chinese accent;
+    asymmetric columns, deep midnight blue, white, and one acid-green accent.
+  -->
+  <style>
+    :root {
+      --ink: #f4f5f0;
+      --muted: rgba(244, 245, 240, 0.62);
+      --line: rgba(244, 245, 240, 0.22);
+      --night: #070b22;
+      --acid: #a8ff1a;
+      color-scheme: dark;
+      font-family: Arial, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      background: var(--night);
+      overscroll-behavior-y: none;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100dvh;
+      margin: 0;
+      background: var(--night);
+      color: var(--ink);
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: var(--acid) transparent;
+    }
+
+    body::-webkit-scrollbar { width: 4px; }
+    body::-webkit-scrollbar-track { background: transparent; }
+    body::-webkit-scrollbar-thumb { background: var(--acid); }
+
+    .experience {
+      position: fixed;
+      inset: 0;
+      min-height: 100dvh;
+      overflow: hidden;
+      isolation: isolate;
+      background: var(--night);
+    }
+
+    .video-stage {
+      position: absolute;
+      inset: -4%;
+      transform: scale(1.045);
+      transform-origin: 50% 50%;
+    }
+
+    .video-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+      background: var(--night);
+      /* Keep the video layer compositor-friendly during scrubbing. */
+    }
+
+    html[data-layer="main"] #mainVideo,
+    html[data-layer="segment-1"] #segment1Video,
+    html[data-layer="segment-2"] #segment2Video,
+    html[data-layer="outro"] #outroVideo { opacity: 1; }
+
+    .veil {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(3, 7, 29, 0.78) 0%, rgba(3, 7, 29, 0.13) 37%, rgba(3, 7, 29, 0.08) 62%, rgba(3, 7, 29, 0.64) 100%),
+        linear-gradient(180deg, rgba(4, 7, 25, 0.68) 0%, transparent 25%, transparent 67%, rgba(4, 7, 25, 0.83) 100%);
+    }
+
+    .grain {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0.22;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.32'/%3E%3C/svg%3E");
+      mix-blend-mode: soft-light;
+    }
+
+    .glow-cursor-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 4;
+      display: block;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      user-select: none;
+      mix-blend-mode: screen;
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .topbar,
+    .story,
+    .edge-note {
+      position: fixed;
+      z-index: 5;
+    }
+
+    .topbar {
+      top: 0;
+      left: 0;
+      right: 0;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: max(22px, env(safe-area-inset-top)) clamp(20px, 4vw, 64px) 18px;
+      border-bottom: 1px solid var(--line);
+      font-size: 10px;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .brand { justify-self: start; font-weight: 800; }
+    .chapter { justify-self: center; color: var(--muted); }
+    .top-nav { justify-self: end; display: flex; gap: clamp(12px, 2vw, 26px); align-items: center; font-size: 10px; letter-spacing: 0.08em; }
+    .top-nav a { color: var(--paper); text-decoration: none; transition: color 180ms ease; }
+    .top-nav a:hover, .top-nav a:focus-visible { color: var(--acid); }
+    .top-nav {
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: clamp(0.7rem, 2vw, 1.5rem);
+      font-size: 0.68rem;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .top-nav a, .top-nav button { color: var(--paper); text-decoration: none; transition: color 180ms ease; }
+    .top-nav button { border: 0; padding: 0; background: none; font: inherit; cursor: pointer; }
+    .top-nav a:hover, .top-nav a:focus-visible,
+    .top-nav button:hover, .top-nav button:focus-visible { color: var(--acid); }
+
+    .story {
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .story-copy {
+      position: absolute;
+      width: min(610px, 49vw);
+      opacity: 0;
+      transform: translate3d(0, 24px, 0);
+      transition: opacity 0.5s ease, transform 0.5s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    html[data-active-copy="0"] .story-copy[data-copy="0"],
+    html[data-active-copy="1"] .story-copy[data-copy="1"],
+    html[data-active-copy="2"] .story-copy[data-copy="2"] {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .story-copy[data-copy="0"] {
+      left: clamp(20px, 6vw, 92px);
+      top: clamp(120px, 19vh, 210px);
+    }
+
+    .story-copy[data-copy="1"] {
+      right: clamp(20px, 6vw, 92px);
+      top: 31vh;
+      text-align: right;
+    }
+
+    .story-copy[data-copy="2"] {
+      left: clamp(20px, 6vw, 92px);
+      bottom: clamp(106px, 17vh, 180px);
+    }
+
+    .hero-note {
+      position: fixed;
+      z-index: 5;
+      pointer-events: none;
+      color: var(--paper);
+      text-shadow: 0 2px 18px rgba(4, 7, 25, 0.5);
+    }
+
+    .hero-note-right {
+      right: clamp(20px, 5vw, 76px);
+      top: 49%;
+      width: min(180px, 18vw);
+      padding-left: 14px;
+      border-left: 1px solid var(--acid);
+    }
+
+    .hero-note-right .note-index,
+    .hero-note-bottom .note-index {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--acid);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+    }
+
+    .hero-note-right strong {
+      display: block;
+      font-size: clamp(13px, 1.1vw, 17px);
+      letter-spacing: 0.08em;
+      line-height: 1.35;
+    }
+
+    .hero-note-right small {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .hero-note-bottom {
+      left: clamp(20px, 6vw, 92px);
+      bottom: clamp(24px, 5vh, 54px);
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+    }
+
+    .hero-note-bottom .note-rule {
+      width: 54px;
+      height: 1px;
+      margin-bottom: 5px;
+      background: var(--acid);
+    }
+
+    .hero-note-bottom p {
+      max-width: 220px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .kicker {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .story-copy[data-copy="1"] .kicker { justify-content: flex-end; }
+    .kicker::before { content: ""; width: 32px; height: 1px; background: var(--acid); }
+
+    h1,
+    h2 {
+      margin: 0;
+      max-width: 9ch;
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", "Helvetica Neue Condensed Bold", sans-serif;
+      font-size: clamp(62px, 9.3vw, 156px);
+      font-stretch: condensed;
+      font-weight: 900;
+      line-height: 0.81;
+      letter-spacing: -0.045em;
+      text-transform: uppercase;
+      text-wrap: balance;
+      text-shadow: 0 2px 26px rgba(4, 7, 25, 0.36);
+    }
+
+    .story-copy[data-copy="1"] h2 { margin-left: auto; }
+
+    .accent {
+      display: inline-block;
+      padding: 0 0.06em 0.08em;
+      color: var(--acid);
+      font-family: "Kaiti SC", STKaiti, "Brush Script MT", cursive;
+      font-size: 0.62em;
+      font-style: italic;
+      font-weight: 700;
+      line-height: 1.12;
+      letter-spacing: -0.08em;
+      text-transform: none;
+      transform: rotate(-4deg) translateY(-0.06em);
+    }
+
+    .caption {
+      display: grid;
+      grid-template-columns: minmax(100px, 0.7fr) minmax(180px, 1.3fr);
+      gap: 24px;
+      width: min(430px, 100%);
+      margin-top: 22px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .story-copy[data-copy="1"] .caption { margin-left: auto; }
+
+    .timecode {
+      color: var(--acid);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .caption p {
+      margin: 0;
+      color: rgba(244, 245, 240, 0.82);
+      font-size: clamp(13px, 1.15vw, 16px);
+      line-height: 1.75;
+      letter-spacing: 0.06em;
+    }
+
+    .edge-note {
+      right: 12px;
+      top: 50%;
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      writing-mode: vertical-rl;
+      transform: translateY(-50%);
+    }
+
+    .loader {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      background: var(--night);
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+
+    .loader-inner { width: min(330px, calc(100vw - 48px)); }
+    .loader-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .loader-line { height: 2px; overflow: hidden; background: var(--line); }
+    .loader-line::before {
+      content: "";
+      display: block;
+      width: 45%;
+      height: 100%;
+      background: var(--acid);
+      animation: loading 1.1s ease-in-out infinite alternate;
+    }
+
+    @keyframes loading { to { transform: translateX(122%); } }
+
+    .page-ready .loader { opacity: 0; visibility: hidden; }
+
+    .media-error {
+      position: fixed;
+      inset: 0;
+      z-index: 19;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      color: var(--muted);
+      background: var(--night);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .has-media-error .media-error { display: grid; }
+
+    .resume-section {
+      position: relative;
+      z-index: 8;
+      min-height: 320vh;
+      margin-top: 100vh;
+      background: #4b4e3d;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease;
+    }
+
+    .works-section { position: relative; z-index: 8; min-height: 100vh; padding: 14vh 6vw 16vh; background: var(--night); }
+    .works-inner { width: min(1240px, 100%); margin: 0 auto; }
+    .works-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 48px; border-bottom: 1px solid var(--line); padding-bottom: 20px; }
+    .works-head h2 { margin: 0; font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif; font-size: clamp(56px, 10vw, 140px); line-height: .8; letter-spacing: -.05em; text-transform: uppercase; }
+    .works-head p { max-width: 260px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .works-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .work-item { min-height: 280px; padding: 22px; border-top: 2px solid var(--acid); background: rgba(244,245,240,.04); transition: transform .35s ease, background .35s ease; }
+    .work-item:hover { transform: translateY(-8px); background: rgba(168,255,26,.08); }
+    .work-item small { color: var(--acid); letter-spacing: .16em; }
+    .work-item h3 { margin: 52px 0 12px; font-size: 24px; }
+    .work-item p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+
+    .expertise-section { position: relative; z-index: 8; padding: 14vh 6vw 18vh; background: #f2e9d8; color: #263026; overflow: hidden; }
+    .expertise-inner { width: min(1240px, 100%); margin: 0 auto; }
+    .expertise-kicker { color: #71805f; font-size: 10px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+    .expertise-title { margin: 12px 0 54px; font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif; font-size: clamp(56px, 9vw, 132px); line-height: .8; letter-spacing: -.055em; text-transform: uppercase; }
+    .expertise-grid { display: grid; grid-template-columns: repeat(3, 1fr); align-items: start; gap: clamp(16px, 3vw, 42px); padding: 20px 1vw 48px; }
+    .expertise-card { --card-rotate: 0deg; --tag: #df8c20; position: relative; padding: 10px 10px 18px; border: 2px solid #fff9ed; border-radius: 22px; background: #f9f0df; box-shadow: 0 18px 0 rgba(54, 45, 28, .13), 0 28px 45px rgba(45, 41, 29, .2); opacity: 0; transform: translateY(34px) rotate(var(--card-rotate)); transition: opacity .7s ease, transform .7s cubic-bezier(.22,1,.36,1), box-shadow .35s ease; }
+    .expertise-card:nth-child(1) { --card-rotate: -4deg; --tag: #e28e20; }
+    .expertise-card:nth-child(2) { --card-rotate: 1deg; margin-top: -22px; --tag: #739449; }
+    .expertise-card:nth-child(3) { --card-rotate: 4deg; --tag: #238f8f; }
+    .expertise-card.is-visible { opacity: 1; transform: translateY(0) rotate(var(--card-rotate)); }
+    .expertise-card:hover { transform: translateY(-13px) rotate(0deg); box-shadow: 0 24px 0 rgba(54,45,28,.13), 0 36px 52px rgba(45,41,29,.28); }
+    .expertise-art { position: relative; display: grid; min-height: 300px; place-items: center; overflow: hidden; border-radius: 14px; background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.35), transparent 35%), linear-gradient(135deg, #d57f32, #f1c761 48%, #6e8a53); transition: transform .45s cubic-bezier(.22,1,.36,1); }
+    .expertise-card:nth-child(2) .expertise-art { background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.4), transparent 35%), linear-gradient(135deg, #a8bb86, #d5c978 52%, #59734d); }
+    .expertise-card:nth-child(3) .expertise-art { background: radial-gradient(circle at 70% 30%, rgba(255,255,255,.45), transparent 32%), linear-gradient(135deg, #4d9d9e, #7ac9c1 45%, #326f78); }
+    .expertise-card:hover .expertise-art { transform: scale(1.03); }
+    .expertise-art::before, .expertise-art::after { content: ""; position: absolute; border-radius: 50%; background: rgba(255,255,255,.2); filter: blur(1px); }
+    .expertise-art::before { width: 180px; height: 180px; top: 18%; left: 18%; }
+    .expertise-art::after { width: 90px; height: 90px; right: 14%; bottom: 18%; }
+    .expertise-art-label { position: relative; z-index: 1; color: rgba(255,250,235,.92); font-family: Impact, Haettenschweiler, sans-serif; font-size: clamp(42px, 5vw, 78px); letter-spacing: -.05em; text-shadow: 0 5px 0 rgba(43,46,33,.2); }
+    .expertise-copy { padding: 14px 8px 0; }
+    .expertise-tag { display: inline-block; padding: 7px 15px 6px; border-radius: 10px; color: #fff9ed; background: var(--tag); font-size: 13px; font-weight: 900; letter-spacing: .06em; box-shadow: 0 4px 0 rgba(43,46,33,.15); }
+    .expertise-copy p { min-height: 66px; margin: 15px 0 0; color: #596052; font-size: 13px; line-height: 1.75; }
+    .portfolio-cta { display: inline-flex; align-items: center; gap: 24px; margin-top: 18px; padding: 22px 30px; border: 0; border-radius: 18px; color: #fff9ed; background: #e99416; box-shadow: 0 9px 0 #bd6a13, 0 18px 30px rgba(134,77,17,.22); font-size: clamp(22px, 3vw, 38px); font-weight: 900; letter-spacing: -.04em; text-decoration: none; transition: transform .25s ease, box-shadow .25s ease; }
+    .portfolio-cta:hover { transform: translateY(-5px); box-shadow: 0 14px 0 #bd6a13, 0 22px 34px rgba(134,77,17,.28); }
+    @media (prefers-reduced-motion: reduce) { .expertise-card, .expertise-art, .portfolio-cta { transition: none; } .expertise-card { opacity: 1; transform: rotate(var(--card-rotate)); } }
+
+    .resume-sticky {
+      position: sticky;
+      top: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .resume-video {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: auto;
+      z-index: -1;
+      width: 48%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 50%;
+      opacity: 0.88;
+      filter: saturate(0.78) contrast(1.08);
+    }
+
+    .resume-shade {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(90deg, rgba(51, 54, 41, .94) 0%, rgba(73, 76, 57, .72) 48%, rgba(41, 43, 33, .16) 100%);
+    }
+
+    .resume-grid {
+      position: relative;
+      width: min(1240px, calc(100% - 12vw));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: clamp(106px, 14vh, 150px) 0 80px;
+    }
+
+    .resume-rail { position: absolute; left: 0; top: clamp(110px, 16vh, 180px); color: var(--muted); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; }
+    .resume-rail strong { display: block; margin-top: 16px; color: var(--acid); font-size: clamp(32px, 5vw, 72px); letter-spacing: -0.06em; line-height: 0.85; }
+    .resume-rail span { display: block; margin-top: 20px; line-height: 1.7; }
+    .resume-content { width: min(47%, 610px); margin-left: 0; padding-left: clamp(110px, 9vw, 150px); will-change: transform; }
+    .resume-kicker { color: var(--acid); font-size: 9px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; }
+    .resume-title { margin: 12px 0 18px; max-width: 7ch; font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif; font-size: clamp(44px, 7vw, 92px); line-height: 0.82; letter-spacing: -0.05em; text-transform: uppercase; }
+    .resume-year { margin: 0 0 8px; color: rgba(244,245,240,.22); font-family: Impact, Haettenschweiler, sans-serif; font-size: clamp(70px, 11vw, 160px); line-height: .76; letter-spacing: -.08em; }
+    .resume-intro { max-width: 440px; color: var(--muted); font-size: clamp(12px, 1vw, 14px); line-height: 1.75; }
+    .resume-block { margin-top: 32px; padding-top: 14px; border-top: 1px solid rgba(244,245,240,.28); }
+    .resume-block h3 { margin: 0 0 18px; color: var(--acid); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; }
+    .resume-item { display: grid; grid-template-columns: 108px 1fr; gap: 14px; margin: 0 0 16px; color: var(--muted); line-height: 1.55; }
+    .resume-item time { color: var(--paper); font-size: 9px; font-weight: 800; letter-spacing: 0.05em; }
+    .resume-item strong { display: block; color: var(--paper); font-size: 13px; }
+    .resume-item p { margin: 4px 0 0; font-size: 11px; }
+    .resume-progress { position: absolute; left: clamp(18px, 6vw, 92px); right: clamp(18px, 6vw, 92px); bottom: 32px; display: flex; align-items: center; gap: 14px; color: rgba(244,245,240,.72); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+    .resume-progress::before { content: ""; flex: 1; height: 1px; background: rgba(244,245,240,.34); }
+    .resume-progress::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--acid); box-shadow: 0 0 0 4px rgba(168,255,26,.18); }
+
+    body.resume-visible .experience { opacity: 0; pointer-events: none; }
+    body.resume-visible .resume-section { opacity: 1; pointer-events: auto; }
+
+    @media (max-width: 760px) {
+      .topbar {
+        grid-template-columns: 1fr auto;
+        padding-inline: 18px;
+      }
+
+      .chapter { display: none; }
+      .top-nav { gap: 0.7rem; font-size: 0.58rem; }
+
+      .hero-note-right { right: 18px; top: 54%; width: 120px; }
+      .hero-note-bottom { left: 18px; bottom: 22px; gap: 10px; }
+      .hero-note-bottom .note-rule { width: 28px; }
+      .hero-note-bottom p { max-width: 155px; font-size: 10px; }
+
+      .video-stage {
+        inset: -2%;
+        transform: scale(1.025);
+      }
+
+      .veil {
+        background:
+          linear-gradient(180deg, rgba(4, 7, 25, 0.54) 0%, rgba(4, 7, 25, 0.04) 32%, rgba(4, 7, 25, 0.2) 58%, rgba(4, 7, 25, 0.92) 100%);
+      }
+
+      .story-copy,
+      .story-copy[data-copy="0"],
+      .story-copy[data-copy="1"],
+      .story-copy[data-copy="2"] {
+        left: 18px;
+        right: 18px;
+        top: auto;
+        bottom: max(42px, calc(env(safe-area-inset-bottom) + 24px));
+        width: auto;
+        text-align: left;
+      }
+
+      .story-copy[data-copy="1"] .kicker { justify-content: flex-start; }
+      .story-copy[data-copy="1"] h2,
+      .story-copy[data-copy="1"] .caption { margin-left: 0; }
+
+      h1,
+      h2 {
+        max-width: 8.4ch;
+        font-size: clamp(54px, 16vw, 86px);
+        line-height: 0.84;
+      }
+
+      .caption {
+        grid-template-columns: 94px 1fr;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .caption p { font-size: 12px; line-height: 1.6; }
+      .edge-note { display: none; }
+      .resume-video { width: 100%; opacity: .24; }
+      .resume-grid { width: min(100% - 36px, 680px); padding-top: 96px; }
+      .resume-rail { position: static; margin-bottom: 26px; }
+      .resume-rail strong { display: inline-block; margin: 0 10px 0 0; }
+      .resume-rail span { display: inline; }
+      .resume-content { width: 100%; padding-left: 0; }
+      .resume-item { grid-template-columns: 1fr; gap: 4px; }
+      .top-nav { gap: 10px; font-size: 9px; }
+      .works-list { grid-template-columns: 1fr; }
+      .expertise-section { padding-inline: 18px; }
+      .expertise-grid { grid-template-columns: 1fr; gap: 34px; padding-inline: 8px; }
+      .expertise-card:nth-child(2) { margin-top: 0; }
+      .expertise-art { min-height: 250px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      body { height: 100dvh !important; overflow: hidden; }
+      .video-layer, .story-copy, .loader { transition: none; }
+      .video-stage { transform: none; }
+      .grain { display: none; }
+      .glow-cursor-canvas { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="experience" aria-label="滚动驱动的设计师作品集介绍">
+    <div class="video-stage" aria-hidden="true">
+      <video id="mainVideo" class="video-layer" muted playsinline preload="auto" src="main-video.mp4"></video>
+      <video id="outroVideo" class="video-layer" autoplay loop muted playsinline preload="auto" src="main-video.mp4"></video>
+    </div>
+
+    <div class="veil" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <canvas id="glowCursor" class="glow-cursor-canvas" aria-hidden="true"></canvas>
+
+    <header class="topbar">
+      <div class="brand">HS — Design Portfolio</div>
+      <div class="chapter">Scroll-controlled study</div>
+      <nav class="top-nav" aria-label="主导航">
+        <a href="#resume">履历</a>
+        <a href="#works">作品</a>
+        <a href="#contact">联系</a>
+      </nav>
+    </header>
+
+    <section class="story" aria-live="polite">
+      <article class="story-copy" data-copy="0">
+        <div class="kicker">01 · Observe</div>
+        <h1>Beyond the <span class="accent">obvious</span></h1>
+        <div class="caption">
+          <span class="timecode">0.00–1.35s</span>
+          <p>灵感先于答案，惊喜总从一次凝视开始。</p>
+        </div>
+      </article>
+
+      <article class="story-copy" data-copy="1">
+        <div class="kicker">02 · Shape</div>
+        <h2>Instinct into <span class="accent">system</span></h2>
+        <div class="caption">
+          <span class="timecode">1.35–2.75s</span>
+          <p>把每次犹疑拆成系统，让直觉拥有清晰秩序。</p>
+        </div>
+      </article>
+
+      <article class="story-copy" data-copy="2">
+        <div class="kicker">03 · Remember</div>
+        <h2>Make it <span class="accent">yours</span></h2>
+        <div class="caption">
+          <span class="timecode">2.75–4.04s</span>
+          <p>最后留下辨识度，让作品替你继续说话。</p>
+        </div>
+      </article>
+    </section>
+
+    <aside class="hero-note hero-note-right" aria-label="人物说明">
+      <span class="note-index">01 / CHARACTER</span>
+      <strong>THE QUIET<br>OBSERVER</strong>
+      <small>用好奇捕捉细节，<br>把瞬间变成语言。</small>
+    </aside>
+
+    <aside class="hero-note hero-note-bottom" aria-label="作品说明">
+      <span class="note-rule"></span>
+      <div>
+        <span class="note-index">MOTION STUDY · 2026</span>
+        <p>一个设计师的视觉档案，<br>从观察开始，向表达生长。</p>
+      </div>
+    </aside>
+
+    <div class="edge-note" aria-hidden="true">Move to act · scroll to continue</div>
+
+  </main>
+
+  <section class="resume-section" id="resume" aria-label="个人履历">
+    <div class="resume-sticky">
+      <video id="resumeVideo" class="resume-video" autoplay muted playsinline preload="auto" src="resume-video.mp4"></video>
+      <div class="resume-shade" aria-hidden="true"></div>
+      <div class="resume-grid">
+        <aside class="resume-rail">
+          <strong>CV</strong>
+          <span>scroll / 01—04<br>profile in motion</span>
+        </aside>
+        <div class="resume-content">
+          <div class="resume-kicker">02 · Biography / 个人履历</div>
+          <h2 class="resume-title">Study.<br>Work.<br>Build.</h2>
+          <div class="resume-year">2023</div>
+          <p class="resume-intro">商务英语本科在读，关注外贸业务、跨境电商与内容表达。擅长把资料、需求与复杂信息整理成清晰可执行的方案。</p>
+
+          <section class="resume-block">
+            <h3>Education</h3>
+            <div class="resume-item"><time>2023.09 — 2027.06</time><div><strong>宁波财经学院 · 商务英语 · 本科</strong><p>班级前 10；主修国际贸易实务、内容营销与企业外宣、商务英语函电与谈判、跨境电商实务。</p></div></div>
+          </section>
+
+          <section class="resume-block">
+            <h3>Experience</h3>
+            <div class="resume-item"><time>2025.06 — 2025.09</time><div><strong>企业调研</strong><p>走访宠物玩具外贸企业，访谈业务人员，归纳经营现状与一线外贸业务信息。</p></div></div>
+            <div class="resume-item"><time>2026.03 — 2026.07</time><div><strong>企业独立站开发与出海方案展示</strong><p>完成市场调研、独立站内容与品牌页面开发，并向合作方展示产品与市场方案。</p></div></div>
+            <div class="resume-item"><time>2026.08 — 目前</time><div><strong>AI 辅助应用开发与个人网站</strong><p>使用 Codex、Grok、DeepSeek 等智能体辅助开发 5 款应用，并持续更新个人网站与 GitHub 项目。</p></div></div>
+          </section>
+
+          <section class="resume-block">
+            <h3>Capabilities</h3>
+            <div class="resume-item"><time>LANGUAGE</time><div><strong>英语专业四级 · 大学英语四、六级</strong><p>英文资料阅读、信息检索与基础书面沟通。</p></div></div>
+            <div class="resume-item"><time>TOOLS</time><div><strong>PowerPoint · Word · Excel · AI 工具</strong><p>演示文稿、文档编辑、表格整理与大语言模型基础应用。</p></div></div>
+            <div class="resume-item"><time>BUSINESS</time><div><strong>外贸业务流程 · 常用贸易术语</strong><p>具备跨境贸易业务理解与信息归纳能力。</p></div></div>
+          </section>
+
+          <section class="resume-block">
+            <h3>Honors</h3>
+            <div class="resume-item"><time>2025</time><div><strong>普译全国大学生翻译比赛 · 三等奖</strong><p>OCALE 全国跨境电商创新创业能力大赛三等奖；UNIPP 英语阅读大赛优秀奖；UNIPP 英语翻译大赛三等奖；“中研杯”全国大学生英语能力竞赛全国三等奖。</p></div></div>
+          </section>
+        </div>
+      </div>
+      <div class="resume-progress"><span>02 / 04 · EDUCATION → EXPERIENCE</span></div>
+    </div>
+  </section>
+
+  <section class="works-section" id="works" aria-label="作品目录">
+    <div class="works-inner">
+      <div class="works-head">
+        <h2>Selected<br>works</h2>
+        <p>从英语学习、外贸流程到品牌独立站，持续把问题整理成可用的体验。</p>
+      </div>
+      <div class="works-list">
+        <article class="work-item"><small>01 / LEARNING</small><h3>IELTS Pass</h3><p>雅思学习方向的应用项目，持续迭代中。</p></article>
+        <article class="work-item"><small>02 / COMMERCE</small><h3>Trade Flow</h3><p>围绕外贸业务流程与信息整理的应用探索。</p></article>
+        <article class="work-item" id="contact"><small>03 / PORTFOLIO</small><h3>Personal site</h3><p>个人网站与项目展示，源码托管于 GitHub。</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="expertise-section" id="expertise" aria-labelledby="expertise-title">
+    <div class="expertise-inner">
+      <div class="expertise-kicker">04 · Expertise</div>
+      <h2 class="expertise-title" id="expertise-title">A LITTLE<br>BIT OF ME.</h2>
+      <div class="expertise-grid" id="expertiseGrid"></div>
+      <a class="portfolio-cta" href="#works">Portfolio - Bg <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <div class="loader" role="status" aria-label="正在载入视频">
+    <div class="loader-inner">
+      <div class="loader-label"><span>Loading motion</span><span>Portfolio / 01</span></div>
+      <div class="loader-line"></div>
+    </div>
+  </div>
+
+  <div class="media-error" role="alert">
+    视频暂时无法载入。请确认 <strong>main-video.mp4</strong> 与 index.html 位于同一目录。
+  </div>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const body = document.body;
+      history.scrollRestoration = 'manual';
+      if (scrollY !== 0) scrollTo(0, 0);
+      body.classList.remove('resume-visible');
+      const mainVideo = document.getElementById('mainVideo');
+      const outroVideo = document.getElementById('outroVideo');
+      const resumeSection = document.getElementById('resume');
+      const resumeVideo = document.getElementById('resumeVideo');
+      const resumeContent = document.querySelector('.resume-content');
+      const segmentVideos = [mainVideo, outroVideo];
+      const allVideos = [mainVideo, outroVideo];
+      const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+      const coarsePointer = matchMedia('(pointer: coarse)');
+
+      const OUTRO_START = 0.98;
+      const COPY_BREAKS = [0.68, 0.86];
+      const SEEK_EASE = 0.34;
+      const SEEK_EPSILON = 1 / 60;
+
+      let duration = 4.04;
+      const segmentDurations = [4.04];
+      let homeDuration = 4.04;
+      let metadataCount = 0;
+      // The opening gesture (turning left, then pursing lips) occupies the
+      // first part of the source video. Keep the whole gesture under pointer
+      // control before scroll-scrubbing takes over.
+      let introActionEnd = 2.2;
+      let scrollProgress = 0;
+      let targetTime = 0;
+      let virtualTime = 0;
+      let targetPointerProgress = 0;
+      let pointerProgress = 0;
+      let pointerTime = 0;
+      let scrollOriginTime = 0;
+      let lastSeekAt = 0;
+      // 600fps upper bound (1.67ms). Actual updates remain bounded by the
+      // browser's requestAnimationFrame/display refresh rate.
+      const SEEK_INTERVAL = 1.67;
+      let frameRequest = 0;
+      let currentLayer = 'main';
+      let currentCopy = 0;
+
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const GLOW_MAX_POINTS = 64;
+
+      function initGlowCursor() {
+        if (reduceMotion.matches || coarsePointer.matches) return;
+
+        const canvas = document.getElementById('glowCursor');
+        const gl = canvas.getContext('webgl', {
+          alpha: true,
+          antialias: false,
+          depth: false,
+          premultipliedAlpha: true
+        });
+        if (!gl) {
+          canvas.hidden = true;
+          return;
+        }
+
+        const vertexSource = `
+          attribute vec2 position;
+          varying vec2 vUv;
+          void main() {
+            vUv = position * 0.5 + 0.5;
+            gl_Position = vec4(position, 0.0, 1.0);
+          }
+        `;
+
+        const fragmentSource = `
+          precision highp float;
+          uniform vec2 uResolution;
+          uniform vec2 uPoints[64];
+          uniform float uPointCount;
+          uniform vec3 uColor;
+          uniform vec3 uSecondaryColor;
+          uniform float uTrailWidth;
+          uniform float uTaper;
+          uniform float uGlowIntensity;
+          uniform float uGlowSpread;
+          uniform float uHotspot;
+          uniform float uBrightness;
+          uniform float uOpacity;
+          uniform float uPulseSpeed;
+          uniform float uNoiseStrength;
+          uniform float uTime;
+          uniform float uFade;
+          varying vec2 vUv;
+
+          float sRGB(float x) {
+            if (x <= 0.00031308) return 12.92 * x;
+            return 1.055 * pow(x, 1.0 / 2.4) - 0.055;
+          }
+
+          float hash(vec2 p) {
+            return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+          }
+
+          float filmGrain(vec2 p, float time) {
+            float frame = time * 18.0;
+            float frameIndex = mod(floor(frame), 256.0);
+            float nextFrameIndex = mod(frameIndex + 1.0, 256.0);
+            float blend = fract(frame);
+            blend = blend * blend * (3.0 - 2.0 * blend);
+            vec2 pixel = floor(p);
+            float current = hash(pixel + vec2(frameIndex * 17.0, frameIndex * 31.0));
+            float next = hash(pixel + vec2(nextFrameIndex * 17.0, nextFrameIndex * 31.0));
+            return mix(current, next, blend) * 2.0 - 1.0;
+          }
+
+          void main() {
+            vec2 pixel = vUv * uResolution;
+            float denominator = max(uPointCount - 1.0, 1.0);
+            float strongest = 0.0;
+            float strongestCore = 0.0;
+            float colorWeight = 0.0;
+            vec3 colorSum = vec3(0.0);
+
+            for (int i = 0; i < 63; i++) {
+              float index = float(i);
+              float active = 1.0 - step(uPointCount - 1.0, index);
+              vec2 start = uPoints[i];
+              vec2 end = uPoints[i + 1];
+              vec2 toPixel = pixel - start;
+              vec2 segment = end - start;
+              float along = clamp(dot(toPixel, segment) / max(dot(segment, segment), 0.0001), 0.0, 1.0);
+              float progress = clamp((index + along) / denominator, 0.0, 1.0);
+              float life = pow(max(1.0 - progress, 0.0), mix(0.55, 1.25, uTaper));
+              float width = uTrailWidth * mix(1.0, 0.25, pow(progress, mix(0.55, 1.6, uTaper)));
+              float distanceToTrail = length(toPixel - segment * along);
+              float falloff = max(width * (0.8 + uGlowSpread * 1.4), 0.5);
+              float beam = min(1.0, (falloff * falloff) / (distanceToTrail * distanceToTrail + falloff * falloff));
+              float core = exp(-pow(distanceToTrail / max(width, 0.5), 2.0) * 2.5);
+              float pulse = 1.0 + sin(uTime * uPulseSpeed * 3.0 - progress * 11.0) * 0.16;
+              float intensity = (core + beam * uGlowIntensity * 0.55) * life * pulse * active;
+              vec3 segmentColor = mix(uColor, uSecondaryColor, progress);
+              strongest = max(strongest, intensity);
+              strongestCore = max(strongestCore, core * life * active);
+              colorSum += segmentColor * intensity;
+              colorWeight += intensity;
+            }
+
+            float grain = filmGrain(pixel, uTime);
+            float noiseAmount = (1.0 - exp(-uNoiseStrength * 2.2)) * 0.4;
+            float alpha = clamp(strongest * uOpacity * uFade, 0.0, 1.0);
+            if (alpha < 0.0005) discard;
+            vec3 color = colorSum / max(colorWeight, 0.0001);
+            color = mix(color, vec3(1.0), smoothstep(0.25, 0.95, strongestCore) * uHotspot);
+            float luminance = sRGB(clamp(strongest * uBrightness, 0.0, 1.0));
+            luminance *= 1.0 + grain * noiseAmount;
+            gl_FragColor = vec4(color * luminance, alpha);
+          }
+        `;
+
+        function compileShader(type, source) {
+          const shader = gl.createShader(type);
+          gl.shaderSource(shader, source);
+          gl.compileShader(shader);
+          if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.warn('Glow cursor shader disabled:', gl.getShaderInfoLog(shader));
+            gl.deleteShader(shader);
+            return null;
+          }
+          return shader;
+        }
+
+        const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
+        const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
+        if (!vertexShader || !fragmentShader) {
+          canvas.hidden = true;
+          return;
+        }
+
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+          console.warn('Glow cursor program disabled:', gl.getProgramInfoLog(program));
+          canvas.hidden = true;
+          return;
+        }
+
+        gl.useProgram(program);
+        const triangle = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, triangle);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+        const position = gl.getAttribLocation(program, 'position');
+        gl.enableVertexAttribArray(position);
+        gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.clearColor(0, 0, 0, 0);
+
+        const uniform = name => gl.getUniformLocation(program, name);
+        const uniforms = {
+          resolution: uniform('uResolution'),
+          points: uniform('uPoints[0]'),
+          pointCount: uniform('uPointCount'),
+          color: uniform('uColor'),
+          secondaryColor: uniform('uSecondaryColor'),
+          trailWidth: uniform('uTrailWidth'),
+          taper: uniform('uTaper'),
+          glowIntensity: uniform('uGlowIntensity'),
+          glowSpread: uniform('uGlowSpread'),
+          hotspot: uniform('uHotspot'),
+          brightness: uniform('uBrightness'),
+          opacity: uniform('uOpacity'),
+          pulseSpeed: uniform('uPulseSpeed'),
+          noiseStrength: uniform('uNoiseStrength'),
+          time: uniform('uTime'),
+          fade: uniform('uFade')
+        };
+
+        const points = Array.from({ length: GLOW_MAX_POINTS }, () => ({ x: 0, y: 0 }));
+        const pointData = new Float32Array(GLOW_MAX_POINTS * 2);
+        const target = { x: 0, y: 0 };
+        const head = { x: 0, y: 0 };
+        const config = {
+          trailLength: 30,
+          trailWidth: 12,
+          trailTaper: 0.59,
+          followSpeed: 0.24,
+          glowIntensity: 1.9,
+          glowSpread: 1.2,
+          hotspot: 0.65,
+          brightness: 1.25,
+          opacity: 1,
+          pulseSpeed: 1.1,
+          noiseStrength: 0.035,
+          idleTimeout: 900,
+          fadeDuration: 900
+        };
+
+        let initialized = false;
+        let pointerInside = false;
+        let fade = 0;
+        let lastInputTime = performance.now();
+        let lastFrameTime = lastInputTime;
+        let glowFrame = 0;
+        let width = 1;
+        let height = 1;
+
+        function resizeGlow() {
+          width = Math.max(innerWidth, 1);
+          height = Math.max(innerHeight, 1);
+          const dpr = Math.min(devicePixelRatio || 1, 1.5);
+          canvas.width = Math.round(width * dpr);
+          canvas.height = Math.round(height * dpr);
+          gl.viewport(0, 0, canvas.width, canvas.height);
+          gl.useProgram(program);
+          gl.uniform2f(uniforms.resolution, width, height);
+        }
+
+        function initializeTrail(x, y) {
+          target.x = head.x = x;
+          target.y = head.y = y;
+          for (const point of points) {
+            point.x = x;
+            point.y = y;
+          }
+          initialized = true;
+          fade = 1;
+        }
+
+        function startGlow() {
+          if (!glowFrame) {
+            lastFrameTime = performance.now();
+            glowFrame = requestAnimationFrame(renderGlow);
+          }
+        }
+
+        function updateGlowPointer(event) {
+          const x = clamp(event.clientX, 0, width);
+          const y = clamp(height - event.clientY, 0, height);
+          if (!initialized) initializeTrail(x, y);
+          target.x = x;
+          target.y = y;
+          pointerInside = true;
+          lastInputTime = performance.now();
+          startGlow();
+        }
+
+        function renderGlow(now) {
+          glowFrame = 0;
+          const delta = Math.min((now - lastFrameTime) / 16.667, 3);
+          lastFrameTime = now;
+          const headEase = 1 - Math.pow(1 - config.followSpeed, delta);
+          const chainBase = clamp(0.28 + config.followSpeed * 0.35, 0.08, 0.92);
+          const chainEase = 1 - Math.pow(1 - chainBase, delta);
+
+          if (initialized) {
+            head.x += (target.x - head.x) * headEase;
+            head.y += (target.y - head.y) * headEase;
+            points[0].x = head.x;
+            points[0].y = head.y;
+            for (let index = 1; index < GLOW_MAX_POINTS; index++) {
+              points[index].x += (points[index - 1].x - points[index].x) * chainEase;
+              points[index].y += (points[index - 1].y - points[index].y) * chainEase;
+            }
+            for (let index = 0; index < GLOW_MAX_POINTS; index++) {
+              pointData[index * 2] = points[index].x;
+              pointData[index * 2 + 1] = points[index].y;
+            }
+          }
+
+          const idleFor = now - lastInputTime;
+          const shouldFade = !pointerInside || idleFor > config.idleTimeout;
+          const fadeTarget = initialized && !shouldFade ? 1 : 0;
+          const fadeStep = (16.667 * delta) / config.fadeDuration;
+          fade += (fadeTarget - fade) * Math.min(1, fadeStep * 7);
+
+          gl.clear(gl.COLOR_BUFFER_BIT);
+          gl.useProgram(program);
+          gl.uniform2fv(uniforms.points, pointData);
+          gl.uniform1f(uniforms.pointCount, config.trailLength);
+          gl.uniform3f(uniforms.color, 0.659, 1.0, 0.102);
+          gl.uniform3f(uniforms.secondaryColor, 0.404, 0.910, 0.976);
+          gl.uniform1f(uniforms.trailWidth, config.trailWidth);
+          gl.uniform1f(uniforms.taper, config.trailTaper);
+          gl.uniform1f(uniforms.glowIntensity, config.glowIntensity);
+          gl.uniform1f(uniforms.glowSpread, config.glowSpread);
+          gl.uniform1f(uniforms.hotspot, config.hotspot);
+          gl.uniform1f(uniforms.brightness, config.brightness);
+          gl.uniform1f(uniforms.opacity, config.opacity);
+          gl.uniform1f(uniforms.pulseSpeed, config.pulseSpeed);
+          gl.uniform1f(uniforms.noiseStrength, config.noiseStrength);
+          gl.uniform1f(uniforms.time, now * 0.001);
+          gl.uniform1f(uniforms.fade, fade);
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+          if (fade > 0.002 || idleFor < config.idleTimeout + config.fadeDuration) startGlow();
+        }
+
+        addEventListener('resize', resizeGlow, { passive: true });
+        addEventListener('pointermove', updateGlowPointer, { passive: true });
+        document.documentElement.addEventListener('pointerleave', () => {
+          pointerInside = false;
+          lastInputTime = performance.now();
+          startGlow();
+        }, { passive: true });
+        resizeGlow();
+      }
+
+      function safePlay(video) {
+        const promise = video.play();
+        if (promise) promise.catch(() => {});
+      }
+
+      function setLayer(nextLayer) {
+        if (nextLayer === currentLayer) return;
+        currentLayer = nextLayer;
+        root.dataset.layer = nextLayer;
+        if (nextLayer === 'outro') safePlay(outroVideo); else outroVideo.pause();
+      }
+
+      function applySegmentBlend(time) {
+        mainVideo.style.opacity = '0';
+        mainVideo.style.transform = 'scale(1)';
+        let elapsed = 0;
+        let activeIndex = segmentVideos.length - 1;
+        for (let index = 0; index < segmentVideos.length; index++) {
+          const segmentEnd = elapsed + segmentDurations[index];
+          if (time <= segmentEnd || index === segmentVideos.length - 1) {
+            activeIndex = index;
+            break;
+          }
+          elapsed = segmentEnd;
+        }
+
+        segmentVideos.forEach((video, index) => {
+          video.pause();
+          video.style.opacity = index === activeIndex ? '1' : '0';
+          video.style.transform = 'scale(1)';
+        });
+
+        const segmentStart = segmentDurations.slice(0, activeIndex).reduce((sum, value) => sum + value, 0);
+        const localTime = clamp(time - segmentStart, 0, Math.max(0, segmentDurations[activeIndex] - 0.03));
+        const activeVideo = segmentVideos[activeIndex];
+        if (!activeVideo.seeking && Math.abs(activeVideo.currentTime - localTime) > SEEK_EPSILON) activeVideo.currentTime = localTime;
+
+        if (activeIndex > 0 && localTime < TRANSITION_DURATION / 2) {
+          const previous = segmentVideos[activeIndex - 1];
+          const progress = clamp(localTime / (TRANSITION_DURATION / 2), 0, 1);
+          previous.currentTime = Math.max(0, segmentDurations[activeIndex - 1] - 0.03);
+          previous.style.opacity = String(1 - progress);
+          previous.style.transform = `scale(${1.02 - progress * 0.02})`;
+          activeVideo.style.opacity = String(progress);
+          activeVideo.style.transform = `scale(${1.02 - progress * 0.02})`;
+        } else if (activeIndex < segmentVideos.length - 1 && localTime > segmentDurations[activeIndex] - TRANSITION_DURATION / 2) {
+          const next = segmentVideos[activeIndex + 1];
+          const progress = clamp((localTime - (segmentDurations[activeIndex] - TRANSITION_DURATION / 2)) / (TRANSITION_DURATION / 2), 0, 1);
+          activeVideo.style.opacity = String(1 - progress);
+          activeVideo.style.transform = `scale(${1 + progress * 0.02})`;
+          next.currentTime = 0;
+          next.style.opacity = String(progress);
+          next.style.transform = `scale(${1.02 - progress * 0.02})`;
+        }
+      }
+
+      function setCopy(nextCopy) {
+        if (nextCopy === currentCopy) return;
+        currentCopy = nextCopy;
+        root.dataset.activeCopy = String(nextCopy);
+      }
+
+      function updateState() {
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+        scrollProgress = reduceMotion.matches ? 0 : clamp(scrollY / maxScroll, 0, 1);
+        if (scrollProgress <= 0.0001) {
+          pointerProgress += (targetPointerProgress - pointerProgress) * 0.18;
+          pointerTime = pointerProgress * introActionEnd;
+          targetTime = pointerTime;
+          scrollOriginTime = pointerTime;
+        } else {
+          targetTime = scrollOriginTime + scrollProgress * (duration - scrollOriginTime);
+        }
+
+        if (scrollProgress >= OUTRO_START) setLayer('outro');
+        else setLayer('main');
+
+        const storyProgress = duration > 0 ? targetTime / duration : 0;
+        const introBoundary = duration > 0 ? introActionEnd / duration : COPY_BREAKS[0];
+        const nextCopy = storyProgress < introBoundary ? 0 : storyProgress < COPY_BREAKS[1] ? 1 : 2;
+        setCopy(nextCopy);
+      }
+
+      function renderFrame() {
+        frameRequest = 0;
+        updateState();
+        const showingOutro = scrollProgress >= OUTRO_START;
+        mainVideo.style.opacity = showingOutro ? '0' : '1';
+        outroVideo.style.opacity = showingOutro ? '1' : '0';
+        if (scrollProgress <= 0.0001 && !mainVideo.seeking && Math.abs(mainVideo.currentTime - pointerTime) > SEEK_EPSILON) mainVideo.currentTime = clamp(pointerTime, 0, Math.max(0, homeDuration - 0.03));
+
+        const difference = targetTime - virtualTime;
+        const now = performance.now();
+        if (!showingOutro && !reduceMotion.matches && Math.abs(difference) > SEEK_EPSILON) {
+          virtualTime += difference * SEEK_EASE;
+          // Coalesce pointer input and issue seeks at up to 60fps while the
+          // previous seek is still in flight.
+          if (!mainVideo.seeking && now - lastSeekAt >= SEEK_INTERVAL && Math.abs(mainVideo.currentTime - virtualTime) > SEEK_EPSILON) {
+            seekMain(virtualTime);
+            lastSeekAt = now;
+          }
+        } else if (!showingOutro && !reduceMotion.matches && !mainVideo.seeking && now - lastSeekAt >= SEEK_INTERVAL && Math.abs(mainVideo.currentTime - targetTime) > SEEK_EPSILON) {
+          virtualTime = targetTime;
+          seekMain(targetTime);
+          lastSeekAt = now;
+        }
+
+        const mediaCatchingUp = mainVideo.seeking || Math.abs(mainVideo.currentTime - targetTime) > SEEK_EPSILON;
+        if (Math.abs(targetTime - virtualTime) > SEEK_EPSILON || mediaCatchingUp) scheduleRender();
+      }
+
+      function scheduleRender() {
+        if (!frameRequest) frameRequest = requestAnimationFrame(renderFrame);
+      }
+
+      function updateResume(scrollYValue = scrollY) {
+        const start = innerHeight;
+        const end = start + Math.max(innerHeight, resumeSection.offsetHeight - innerHeight);
+        const progress = clamp((scrollYValue - start) / (end - start), 0, 1);
+        document.body.classList.toggle('resume-visible', scrollYValue >= start);
+        if (resumeContent) {
+          const maxShift = Math.max(0, resumeContent.scrollHeight - innerHeight * 0.72);
+          resumeContent.style.transform = `translate3d(0, ${-progress * maxShift}px, 0)`;
+        }
+        if (resumeVideo.readyState >= 1 && Number.isFinite(resumeVideo.duration)) {
+          const next = progress * Math.max(0, resumeVideo.duration - 0.04);
+          if (!resumeVideo.seeking && Math.abs(resumeVideo.currentTime - next) > 0.025) resumeVideo.currentTime = next;
+        }
+      }
+
+      function seekMain(time) {
+        const next = clamp(time, 0, Math.max(0, duration - 0.02));
+        // Precise seeks avoid fastSeek's visible keyframe snapping. They are
+        // issued only from renderFrame, never from pointermove.
+        mainVideo.currentTime = next;
+      }
+
+      function configureVideo() {
+        if (metadataCount < allVideos.length) return;
+        duration = homeDuration;
+        introActionEnd = Math.min(homeDuration, 3.2);
+        body.style.height = `${duration * 100}vh`;
+        allVideos.forEach((video) => { video.pause(); video.currentTime = 0; });
+        virtualTime = 0;
+        targetPointerProgress = 0;
+        pointerProgress = 0;
+        pointerTime = 0;
+        scrollOriginTime = 0;
+
+        body.classList.add('page-ready');
+        scheduleRender();
+      }
+
+      allVideos.forEach((video, index) => {
+        video.addEventListener('loadedmetadata', () => {
+          if (video === mainVideo) homeDuration = Number.isFinite(video.duration) ? video.duration : homeDuration;
+          else segmentDurations[0] = Number.isFinite(video.duration) ? video.duration : segmentDurations[0];
+          metadataCount += 1;
+          configureVideo();
+        }, { once: true });
+      });
+      mainVideo.addEventListener('error', () => body.classList.add('has-media-error', 'page-ready'));
+
+      addEventListener('scroll', () => { scheduleRender(); updateResume(); }, { passive: true });
+      addEventListener('resize', scheduleRender, { passive: true });
+
+      addEventListener('pointermove', (event) => {
+        if (scrollProgress > 0.0001 || coarsePointer.matches || reduceMotion.matches) return;
+        const horizontal = clamp(event.clientX / innerWidth, 0, 1);
+        // The opening performance is a left-to-right gesture. Keep it mapped
+        // to the horizontal pointer axis so the final pout frame is always
+        // reachable without requiring the user to move vertically.
+        targetPointerProgress = clamp(horizontal, 0, 1);
+        scheduleRender();
+      }, { passive: true });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          outroVideo.pause();
+        } else if (currentLayer === 'outro' && !reduceMotion.matches) {
+          safePlay(outroVideo);
+        }
+      });
+
+      reduceMotion.addEventListener('change', () => location.reload());
+
+      const expertiseData = [
+        { tag: 'APP', art: 'APP', text: '专注 APP 产品设计与体验，从创意到落地，打造有温度、有趣好用的移动端产品。' },
+        { tag: 'UI DESIGN', art: 'UI', text: 'UI/UX 设计师，关注用户体验与视觉美感，擅长 APP 界面、图标等交互设计。' },
+        { tag: 'SKILL', art: 'SKILL', text: '精通 Skill 模块设计与搭建，熟悉场景任务逻辑，擅长标准化能力封装。' }
+      ];
+      const expertiseGrid = document.getElementById('expertiseGrid');
+      expertiseData.forEach((item) => {
+        const card = document.createElement('article');
+        card.className = 'expertise-card';
+        card.innerHTML = `<div class="expertise-art" aria-hidden="true"><span class="expertise-art-label">${item.art}</span></div><div class="expertise-copy"><span class="expertise-tag">${item.tag}</span><p>${item.text}</p></div>`;
+        expertiseGrid.appendChild(card);
+      });
+      const expertiseObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.querySelectorAll('.expertise-card').forEach((card, index) => {
+              setTimeout(() => card.classList.add('is-visible'), index * 130);
+            });
+            expertiseObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.2 });
+      expertiseObserver.observe(expertiseGrid);
+
+      initGlowCursor();
+      updateResume(0);
+      setTimeout(() => body.classList.add('page-ready'), 3500);
+    })();
+  </script>
+</body>
+</html>
